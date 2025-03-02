@@ -1,6 +1,8 @@
 # Reinis Šestakovskis Portfolio
 
-My portfolio site, available at TBD.
+[![Netlify Status](https://api.netlify.com/api/v1/badges/a6c63cc7-4d38-496a-89d3-40312c967d03/deploy-status)](https://app.netlify.com/sites/reinis/deploys)
+
+My portfolio site, available at [reinis.netlify.app](https://reinis.netlify.app/).
 
 ## Built using [Astro Micro 🔬](https://astro-micro.vercel.app/)
 

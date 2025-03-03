@@ -6,6 +6,23 @@ import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+
+import cSharpLogo from "@assets/c-sharp.svg";
+import dockerLogo from "@assets/docker-icon.svg";
+import postgresqlLogo from "@assets/postgresql.svg";
+import pythonLogo from "@assets/python.svg";
+import reactLogo from "@assets/react.svg";
+import typescriptLogo from "@assets/typescript-icon.svg";
+
+const logos = [
+  { src: pythonLogo, alt: "Python" },
+  { src: typescriptLogo, alt: "TypeScript" },
+  { src: reactLogo, alt: "React" },
+  { src: cSharpLogo, alt: "C#" },
+  { src: dockerLogo, alt: "Docker" },
+  { src: postgresqlLogo, alt: "PostgreSQL" },
+];
 
 const blog = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
@@ -37,6 +54,23 @@ const projects: CollectionEntry<"projects">[] = (
               </p>
             </span>
           </article>
+          <div class="flex flex-row items-center justify-between gap-x-4">
+            {
+              logos.map((logo) => (
+                <div>
+                  <Image
+                    src={logo.src}
+                    width="64"
+                    height="64"
+                    format="svg"
+                    alt={logo.alt}
+                    loading="lazy"
+                    title={logo.alt}
+                  />
+                </div>
+              ))
+            }
+          </div>
         </section>
 
         <section class="animate space-y-6">

@@ -14,6 +14,7 @@ import postgresqlLogo from "@assets/postgresql.svg";
 import pythonLogo from "@assets/python.svg";
 import reactLogo from "@assets/react.svg";
 import typescriptLogo from "@assets/typescript-icon.svg";
+import latviaFlag from "@assets/flag_of_latvia.svg";
 
 const logos = [
   { src: pythonLogo, alt: "Python" },
@@ -46,11 +47,20 @@ const projects: CollectionEntry<"projects">[] = (
           <article class="space-y-4">
             <span class="animate">
               <p>
-                I am a software engineer from Latvia. I love to build delightful
-                Web projects. Other than that, I dabble in subjects such as
-                machine learning, data science, image and audio analysis,
-                computer graphics, cybersecurity and human-centered design. My
-                dream is to help build a more awesome world for tomorrow.
+                I am a software engineer from Latvia <span class="inline-block"
+                  ><Image
+                    src={latviaFlag}
+                    width="24"
+                    height="12"
+                    format="svg"
+                    alt="Flag of Latvia"
+                    loading="lazy"
+                    title="Flag of Latvia"
+                  /></span
+                > . I love to build delightful Web projects. Other than that, I dabble
+                in subjects such as machine learning, data science, image and audio
+                analysis, computer graphics, cybersecurity and human-centered design.
+                My dream is to help build a more awesome world for tomorrow.
               </p>
             </span>
           </article>

@@ -2,10 +2,11 @@ import type { Metadata, Site, Socials } from "@types";
 
 export const SITE: Site = {
   TITLE: "Reinis Šestakovskis - Portfolio",
-  DESCRIPTION: "Welcome to my portfolio! I'm Reinis Šestakovskis, a software engineer and web developer. You can find my projects, blog posts, and more here.",
+  DESCRIPTION:
+    "Welcome to my portfolio! I'm Reinis Šestakovskis, a software engineer and web developer. You can find my projects, blog posts, and more here.",
   EMAIL: "reinissestakovskis@gmail.com",
   NUM_POSTS_ON_HOMEPAGE: 5,
-  NUM_PROJECTS_ON_HOMEPAGE: 3,
+  NUM_PROJECTS_ON_HOMEPAGE: 5,
 };
 
 export const HOME: Metadata = {

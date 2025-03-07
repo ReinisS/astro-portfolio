@@ -2,7 +2,7 @@
 title: "John Conway's Game of Life"
 description: "Implementation of Conway's Game of Life using Rust compiled to WebAssembly."
 date: "04/24/2023"
-demoURL: "https://reinis.netlify.app/projects/wasm-game-of-life/index.html"
+demoURL: "https://reiniss.com/projects/wasm-game-of-life/index.html"
 ---
 
 ## Overview
@@ -13,7 +13,7 @@ In this implementation, the starting state of the game is a random configuration
 
 ## Demo
 
-You can try out the Game of Life implementation [here](https://reinis.netlify.app/projects/wasm-game-of-life/index.html).
+You can try out the Game of Life implementation [here](https://reiniss.com/projects/wasm-game-of-life/index.html).
 
 ## Preview
 

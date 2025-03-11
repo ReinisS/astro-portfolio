@@ -1,19 +1,23 @@
 ---
-title: "Spotify Playlist Mapper (WIP)"
-description: "Ever wanted to see your Spotify playlist visualized in a 2D or 3D map? This project aims to do just that using the Spotify API and some dimensionality reduction techniques."
-date: "03/03/2025"
-# demoURL: "TBD"
-# repoURL: "TBD"
+title: "Text Embedding Visualizer"
+description: "Ever wondered how LLMs understand the meaning behind text? This project aims to explain and visualize how text embeddings work."
+date: "03/11/2025"
+demoURL: "https://embeddings.reiniss.com/"
+repoURL: "https://github.com/ReinisS/embedding-visualizer"
 ---
 
 ## Overview
 
-This work-in-progress project aims to visualize a Spotify playlist in a 2D or 3D map. The idea is to use the Spotify API to get the audio features of each song in the playlist and then use dimensionality reduction techniques to visualize the playlist in a 2D or 3D plot. The user can then interact with the map to see how the songs are clustered together based on their audio features.
+Text embeddings are a type of text representation that allows text with similar meanings to have similar representations. This project aims to explain and visualize how text embeddings work, and why they are essential for modern Natural Language Processing (NLP) tasks.
 
-This project is based on research done earlier during my studies at Uppsala University.
+This project consists of a Python backend, and a Next.js frontend. The user can get embeddings and low dimension representations of the embeddings. The low dimension representations of the embeddings can be viewed in 2D or 3D plots. The project includes Clerk for authentication and PostHog for analytics. See more details and full code in the [GitHub repository](https://github.com/ReinisS/embedding-visualizer).
+
+## Project
+
+You can the Text Embedding Visualizer [here](https://embeddings.reiniss.com/).
 
 ## Preview
 
-Preview of a 2D map of my Spotify playlist using UMAP:
+![Text Embedding Visualizer - Intro](/text_embedding_visualizer_1.png)
 
-![Spotify Playlist Mapper - Preview Plot](/spotify_project_plot.png)
+![Text Embedding Visualizer - Plot](/text_embedding_visualizer_2.png)

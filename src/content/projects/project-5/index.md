@@ -1,7 +1,7 @@
 ---
 title: "John Conway's Game of Life"
 description: "Implementation of Conway's Game of Life using Rust compiled to WebAssembly."
-date: "04/24/2023"
+date: "2023-04-24"
 demoURL: "https://reiniss.com/projects/wasm-game-of-life/index.html"
 ---
 

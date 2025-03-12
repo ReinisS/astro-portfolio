@@ -1,7 +1,7 @@
 ---
 title: "Computer Vision-Based Dangerous Riding Behaviors Detection"
 description: "My Master's thesis project where I developed a computer vision-based system to detect dangerous riding behaviors of e-scooters."
-date: "08/16/2023"
+date: "2023-08-16"
 repoURL: "https://www.diva-portal.org/smash/get/diva2:1791005/FULLTEXT01.pdf"
 ---
 

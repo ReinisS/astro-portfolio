@@ -1,7 +1,7 @@
 ---
 title: "Text Embedding Visualizer"
 description: "Ever wondered how LLMs understand the meaning behind text? This project aims to explain and visualize how text embeddings work."
-date: "03/11/2025"
+date: "2025-03-11"
 demoURL: "https://embeddings.reiniss.com/"
 repoURL: "https://github.com/ReinisS/embedding-visualizer"
 ---

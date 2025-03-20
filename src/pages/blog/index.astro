@@ -238,4 +238,5 @@ const years = Object.keys(postsByYear).sort(
 
   // Support for Astro View Transitions - initialize when navigated to via view transitions
   document.addEventListener("astro:page-load", initializeTagFiltering);
+  document.addEventListener("astro:after-swap", initializeTagFiltering);
 </script>

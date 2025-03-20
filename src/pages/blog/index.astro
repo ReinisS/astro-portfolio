@@ -130,113 +130,160 @@ const years = Object.keys(postsByYear).sort(
   </Container>
 </Layout>
 
-<script>
-  // Function to initialize tag filtering
-  function initializeTagFiltering() {
-    const tagCheckboxes = document.querySelectorAll(".tag-filter-checkbox");
-    const clearFiltersButton = document.getElementById("clear-filters");
-    const postItems = document.querySelectorAll(".post-item");
-    const postYearSections = document.querySelectorAll(".post-year-section");
-    const noResultsMessage = document.getElementById("no-results");
-    const filteredCountElement = document.getElementById("filtered-count");
+<script is:inline>
+  // This function will run on every page load and view transition
+  function initializeBlogTagFiltering() {
+    try {
+      // Only run on pages with the tag filters
+      if (!document.getElementById("tag-filters")) return;
 
-    let selectedTags: string[] = [];
+      const tagCheckboxes = document.querySelectorAll(".tag-filter-checkbox");
+      const clearFiltersButton = document.getElementById("clear-filters");
+      const postItems = document.querySelectorAll(".post-item");
+      const postYearSections = document.querySelectorAll(".post-year-section");
+      const noResultsMessage = document.getElementById("no-results");
+      const filteredCountElement = document.getElementById("filtered-count");
 
-    // Update the count display
-    const updateFilteredCount = (count: number, total: number) => {
-      if (selectedTags.length > 0) {
-        filteredCountElement!.textContent = `(${count} of ${total} matching selected tags)`;
-      } else {
-        filteredCountElement!.textContent = "";
-      }
-    };
+      // Exit if essential elements aren't found (might be on a different page)
+      if (!postItems.length || !tagCheckboxes.length) return;
 
-    // Apply filters to posts
-    const applyFilters = () => {
-      let visiblePosts = 0;
-      const totalPosts = postItems.length;
+      let selectedTags = [];
 
-      // Show all posts if no tags selected
-      if (selectedTags.length === 0) {
-        postItems.forEach((item) => {
-          item.classList.remove("hidden");
-          visiblePosts++;
-        });
-        noResultsMessage?.classList.add("hidden");
-      } else {
-        // Filter posts based on selected tags
-        postItems.forEach((item) => {
-          const postTags = (item.getAttribute("data-tags") || "").split(",");
-          // Only show posts that have ALL selected tags
-          const shouldShow = selectedTags.every((tag) =>
-            postTags.includes(tag),
-          );
+      // Update the count display
+      const updateFilteredCount = (count, total) => {
+        if (!filteredCountElement) return;
 
-          if (shouldShow) {
+        if (selectedTags.length > 0) {
+          filteredCountElement.textContent = `(${count} of ${total} matching selected tags)`;
+        } else {
+          filteredCountElement.textContent = "";
+        }
+      };
+
+      // Apply filters to posts
+      const applyFilters = () => {
+        let visiblePosts = 0;
+        const totalPosts = postItems.length;
+
+        // Show all posts if no tags selected
+        if (selectedTags.length === 0) {
+          postItems.forEach((item) => {
             item.classList.remove("hidden");
             visiblePosts++;
-          } else {
-            item.classList.add("hidden");
-          }
-        });
-
-        // Show or hide no results message
-        if (visiblePosts === 0) {
-          noResultsMessage?.classList.remove("hidden");
+          });
+          if (noResultsMessage) noResultsMessage.classList.add("hidden");
         } else {
-          noResultsMessage?.classList.add("hidden");
+          // Filter posts based on selected tags
+          postItems.forEach((item) => {
+            const postTags = (item.getAttribute("data-tags") || "")
+              .split(",")
+              .filter(Boolean);
+            // Only show posts that have ALL selected tags
+            const shouldShow = selectedTags.every((tag) =>
+              postTags.includes(tag),
+            );
+
+            if (shouldShow) {
+              item.classList.remove("hidden");
+              visiblePosts++;
+            } else {
+              item.classList.add("hidden");
+            }
+          });
+
+          // Show or hide no results message
+          if (noResultsMessage) {
+            if (visiblePosts === 0) {
+              noResultsMessage.classList.remove("hidden");
+            } else {
+              noResultsMessage.classList.add("hidden");
+            }
+          }
         }
+
+        // Hide empty year sections
+        if (postYearSections.length) {
+          postYearSections.forEach((section) => {
+            const yearPosts = section.querySelectorAll(
+              ".post-item:not(.hidden)",
+            );
+            if (yearPosts.length === 0) {
+              section.classList.add("hidden");
+            } else {
+              section.classList.remove("hidden");
+            }
+          });
+        }
+
+        updateFilteredCount(visiblePosts, totalPosts);
+      };
+
+      // Remove existing event listeners if re-initializing
+      tagCheckboxes.forEach((checkbox) => {
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+      });
+
+      if (clearFiltersButton) {
+        const newButton = clearFiltersButton.cloneNode(true);
+        clearFiltersButton.parentNode.replaceChild(
+          newButton,
+          clearFiltersButton,
+        );
       }
 
-      // Hide empty year sections
-      postYearSections.forEach((section) => {
-        const yearPosts = section.querySelectorAll(".post-item:not(.hidden)");
-        if (yearPosts.length === 0) {
-          section.classList.add("hidden");
-        } else {
-          section.classList.remove("hidden");
-        }
-      });
+      // Re-select the elements after replacing them
+      const refreshedCheckboxes = document.querySelectorAll(
+        ".tag-filter-checkbox",
+      );
+      const refreshedClearButton = document.getElementById("clear-filters");
 
-      updateFilteredCount(visiblePosts, totalPosts);
-    };
+      // Tag checkbox change handler
+      refreshedCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", (e) => {
+          const target = e.target;
+          const tag = target.getAttribute("data-tag");
 
-    // Tag checkbox change handler
-    tagCheckboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", (e) => {
-        const target = e.target as HTMLInputElement;
-        const tag = target.getAttribute("data-tag") as string;
-
-        // Update selected tags based on checkbox state
-        if (target.checked) {
-          if (!selectedTags.includes(tag)) {
-            selectedTags.push(tag);
+          // Update selected tags based on checkbox state
+          if (target.checked) {
+            if (!selectedTags.includes(tag)) {
+              selectedTags.push(tag);
+            }
+          } else {
+            selectedTags = selectedTags.filter((t) => t !== tag);
           }
-        } else {
-          selectedTags = selectedTags.filter((t) => t !== tag);
-        }
 
-        applyFilters();
+          applyFilters();
+        });
       });
-    });
 
-    // Clear filters button
-    clearFiltersButton?.addEventListener("click", () => {
-      selectedTags = [];
-      tagCheckboxes.forEach((checkbox) => {
-        (checkbox as HTMLInputElement).checked = false;
-      });
+      // Clear filters button
+      if (refreshedClearButton) {
+        refreshedClearButton.addEventListener("click", () => {
+          selectedTags = [];
+          refreshedCheckboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+          });
+          applyFilters();
+        });
+      }
+
+      // Initialize with all posts visible
       applyFilters();
-    });
 
-    // Initialize with all posts visible
-    applyFilters();
+      console.log("Blog tag filtering initialized successfully");
+    } catch (error) {
+      console.error("Error initializing blog tag filtering:", error);
+    }
   }
 
-  // Initialize on DOMContentLoaded
-  document.addEventListener("DOMContentLoaded", initializeTagFiltering);
+  // Run immediately
+  initializeBlogTagFiltering();
 
-  // Support for Astro View Transitions - initialize when navigated to via view transitions
-  document.addEventListener("astro:page-load", initializeTagFiltering);
-  document.addEventListener("astro:after-swap", initializeTagFiltering);
+  // These event listeners will ensure the function runs on page transitions
+  document.addEventListener("DOMContentLoaded", initializeBlogTagFiltering);
+  document.addEventListener("astro:page-load", initializeBlogTagFiltering);
+  document.addEventListener("astro:after-swap", initializeBlogTagFiltering);
+  // Also add a fallback for direct navigation without transitions
+  window.addEventListener("load", initializeBlogTagFiltering);
 </script>

@@ -105,102 +105,145 @@ const allTags = [
   </Container>
 </Layout>
 
-<script>
-  // Function to initialize tag filtering
-  function initializeTagFiltering() {
-    const tagCheckboxes = document.querySelectorAll(".tag-filter-checkbox");
-    const clearFiltersButton = document.getElementById("clear-filters");
-    const projectItems = document.querySelectorAll(".project-item");
-    const noResultsMessage = document.getElementById("no-results");
-    const filteredCountElement = document.getElementById("filtered-count");
+<script is:inline>
+  // This function will run on every page load and view transition
+  function initializeProjectTagFiltering() {
+    try {
+      // Only run on pages with the tag filters
+      if (!document.getElementById("tag-filters")) return;
 
-    let selectedTags: string[] = [];
+      const tagCheckboxes = document.querySelectorAll(".tag-filter-checkbox");
+      const clearFiltersButton = document.getElementById("clear-filters");
+      const projectItems = document.querySelectorAll(".project-item");
+      const noResultsMessage = document.getElementById("no-results");
+      const filteredCountElement = document.getElementById("filtered-count");
 
-    // Update the count display
-    const updateFilteredCount = (count: number, total: number) => {
-      if (selectedTags.length > 0) {
-        filteredCountElement!.textContent = `(${count} of ${total} matching selected tags)`;
-      } else {
-        filteredCountElement!.textContent = "";
-      }
-    };
+      // Exit if essential elements aren't found (might be on a different page)
+      if (!projectItems.length || !tagCheckboxes.length) return;
 
-    // Apply filters to projects
-    const applyFilters = () => {
-      let visibleProjects = 0;
-      const totalProjects = projectItems.length;
+      let selectedTags = [];
 
-      // Show all projects if no tags selected
-      if (selectedTags.length === 0) {
-        projectItems.forEach((item) => {
-          item.classList.remove("hidden");
-          visibleProjects++;
-        });
-        noResultsMessage?.classList.add("hidden");
-      } else {
-        // Filter projects based on selected tags
-        projectItems.forEach((item) => {
-          const projectTags = (item.getAttribute("data-tags") || "").split(",");
-          // Only show projects that have ALL selected tags
-          const shouldShow = selectedTags.every((tag) =>
-            projectTags.includes(tag),
-          );
+      // Update the count display
+      const updateFilteredCount = (count, total) => {
+        if (!filteredCountElement) return;
 
-          if (shouldShow) {
+        if (selectedTags.length > 0) {
+          filteredCountElement.textContent = `(${count} of ${total} matching selected tags)`;
+        } else {
+          filteredCountElement.textContent = "";
+        }
+      };
+
+      // Apply filters to projects
+      const applyFilters = () => {
+        let visibleProjects = 0;
+        const totalProjects = projectItems.length;
+
+        // Show all projects if no tags selected
+        if (selectedTags.length === 0) {
+          projectItems.forEach((item) => {
             item.classList.remove("hidden");
             visibleProjects++;
-          } else {
-            item.classList.add("hidden");
-          }
-        });
-
-        // Show or hide no results message
-        if (visibleProjects === 0) {
-          noResultsMessage?.classList.remove("hidden");
+          });
+          if (noResultsMessage) noResultsMessage.classList.add("hidden");
         } else {
-          noResultsMessage?.classList.add("hidden");
+          // Filter projects based on selected tags
+          projectItems.forEach((item) => {
+            const projectTags = (item.getAttribute("data-tags") || "")
+              .split(",")
+              .filter(Boolean);
+            // Only show projects that have ALL selected tags
+            const shouldShow = selectedTags.every((tag) =>
+              projectTags.includes(tag),
+            );
+
+            if (shouldShow) {
+              item.classList.remove("hidden");
+              visibleProjects++;
+            } else {
+              item.classList.add("hidden");
+            }
+          });
+
+          // Show or hide no results message
+          if (noResultsMessage) {
+            if (visibleProjects === 0) {
+              noResultsMessage.classList.remove("hidden");
+            } else {
+              noResultsMessage.classList.add("hidden");
+            }
+          }
         }
+
+        updateFilteredCount(visibleProjects, totalProjects);
+      };
+
+      // Remove existing event listeners if re-initializing
+      tagCheckboxes.forEach((checkbox) => {
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+      });
+
+      if (clearFiltersButton) {
+        const newButton = clearFiltersButton.cloneNode(true);
+        clearFiltersButton.parentNode.replaceChild(
+          newButton,
+          clearFiltersButton,
+        );
       }
 
-      updateFilteredCount(visibleProjects, totalProjects);
-    };
+      // Re-select the elements after replacing them
+      const refreshedCheckboxes = document.querySelectorAll(
+        ".tag-filter-checkbox",
+      );
+      const refreshedClearButton = document.getElementById("clear-filters");
 
-    // Tag checkbox change handler
-    tagCheckboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", (e) => {
-        const target = e.target as HTMLInputElement;
-        const tag = target.getAttribute("data-tag") as string;
+      // Tag checkbox change handler
+      refreshedCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", (e) => {
+          const target = e.target;
+          const tag = target.getAttribute("data-tag");
 
-        // Update selected tags based on checkbox state
-        if (target.checked) {
-          if (!selectedTags.includes(tag)) {
-            selectedTags.push(tag);
+          // Update selected tags based on checkbox state
+          if (target.checked) {
+            if (!selectedTags.includes(tag)) {
+              selectedTags.push(tag);
+            }
+          } else {
+            selectedTags = selectedTags.filter((t) => t !== tag);
           }
-        } else {
-          selectedTags = selectedTags.filter((t) => t !== tag);
-        }
 
-        applyFilters();
+          applyFilters();
+        });
       });
-    });
 
-    // Clear filters button
-    clearFiltersButton?.addEventListener("click", () => {
-      selectedTags = [];
-      tagCheckboxes.forEach((checkbox) => {
-        (checkbox as HTMLInputElement).checked = false;
-      });
+      // Clear filters button
+      if (refreshedClearButton) {
+        refreshedClearButton.addEventListener("click", () => {
+          selectedTags = [];
+          refreshedCheckboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+          });
+          applyFilters();
+        });
+      }
+
+      // Initialize with all projects visible
       applyFilters();
-    });
 
-    // Initialize with all projects visible
-    applyFilters();
+      console.log("Projects tag filtering initialized successfully");
+    } catch (error) {
+      console.error("Error initializing projects tag filtering:", error);
+    }
   }
 
-  // Initialize on DOMContentLoaded
-  document.addEventListener("DOMContentLoaded", initializeTagFiltering);
+  // Run immediately
+  initializeProjectTagFiltering();
 
-  // Support for Astro View Transitions - initialize when navigated to via view transitions
-  document.addEventListener("astro:page-load", initializeTagFiltering);
-  document.addEventListener("astro:after-swap", initializeTagFiltering);
+  // These event listeners will ensure the function runs on page transitions
+  document.addEventListener("DOMContentLoaded", initializeProjectTagFiltering);
+  document.addEventListener("astro:page-load", initializeProjectTagFiltering);
+  document.addEventListener("astro:after-swap", initializeProjectTagFiltering);
+  // Also add a fallback for direct navigation without transitions
+  window.addEventListener("load", initializeProjectTagFiltering);
 </script>

@@ -4,29 +4,202 @@ import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import ArrowCard from "@components/ArrowCard.astro";
 import { PROJECTS } from "@consts";
+import { getTagIcon } from "@lib/tagIcons";
 
 const projects = (await getCollection("projects"))
   .filter((project) => !project.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Get all unique tags from projects
+const allTags = [
+  ...new Set(projects.flatMap((project) => project.data.tags || [])),
+].sort();
 ---
 
 <Layout title={PROJECTS.TITLE} description={PROJECTS.DESCRIPTION}>
   <Container>
-    <aside data-pagefind-ignore>
-      <div class="space-y-10">
-        <div class="animate font-semibold text-black dark:text-white">
-          Projects
+    <div class="animate mb-6 text-4xl font-semibold text-black dark:text-white">
+      Projects <span id="filtered-count" class="text-base font-normal"></span>
+    </div>
+    <div class="flex flex-col gap-8 md:flex-row" data-pagefind-ignore>
+      <!-- Sidebar with tag filters -->
+      <aside class="w-full flex-shrink-0 md:w-48">
+        <div class="sticky top-24">
+          <h2 class="animate mb-4 font-semibold text-black dark:text-white">
+            Filter by Tags
+          </h2>
+          <div class="animate" id="tag-filters">
+            <ul class="mb-3 max-h-[50vh] space-y-2 overflow-y-auto pr-2">
+              {
+                allTags.map((tag) => (
+                  <li class="flex items-center">
+                    <label class="flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1 text-sm hover:bg-black/5 dark:hover:bg-white/5">
+                      <input
+                        type="checkbox"
+                        class="tag-filter-checkbox"
+                        data-tag={tag}
+                      />
+                      <span class="flex flex-1 items-center gap-1 truncate">
+                        {(() => {
+                          const IconComponent = getTagIcon(tag);
+                          return (
+                            IconComponent && (
+                              <img
+                                src={IconComponent.src}
+                                alt={`${tag} icon`}
+                                class="h-3 w-3"
+                              />
+                            )
+                          );
+                        })()}
+                        {tag}
+                      </span>
+                      <span class="text-xs text-gray-600 dark:text-gray-400">
+                        (
+                        {
+                          projects.filter((project) =>
+                            project.data.tags?.includes(tag),
+                          ).length
+                        }
+                        )
+                      </span>
+                    </label>
+                  </li>
+                ))
+              }
+            </ul>
+            <button
+              id="clear-filters"
+              class="w-full rounded-sm border border-black/15 px-2 py-1 text-center text-sm transition-colors duration-300 ease-in-out hover:bg-black/5 hover:text-black focus-visible:bg-black/5 focus-visible:text-black dark:border-white/20 dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
+            >
+              Clear Filters
+            </button>
+          </div>
         </div>
-        <ul class="animate not-prose flex flex-col gap-4">
-          {
-            projects.map((project) => (
-              <li>
-                <ArrowCard entry={project} />
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-    </aside>
+      </aside>
+
+      <!-- Main content -->
+      <main class="flex-1 py-0">
+        <div class="space-y-10">
+          <div id="project-container">
+            <ul class="animate not-prose flex flex-col gap-4">
+              {
+                projects.map((project) => (
+                  <li
+                    class="project-item"
+                    data-tags={project.data.tags?.join(",") || ""}
+                  >
+                    <ArrowCard entry={project} />
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+          <div id="no-results" class="animate hidden py-10 text-center">
+            No projects match the selected tags. Try selecting different tags or
+            clearing filters.
+          </div>
+        </div>
+      </main>
+    </div>
   </Container>
 </Layout>
+
+<script>
+  // Function to initialize tag filtering
+  function initializeTagFiltering() {
+    const tagCheckboxes = document.querySelectorAll(".tag-filter-checkbox");
+    const clearFiltersButton = document.getElementById("clear-filters");
+    const projectItems = document.querySelectorAll(".project-item");
+    const noResultsMessage = document.getElementById("no-results");
+    const filteredCountElement = document.getElementById("filtered-count");
+
+    let selectedTags: string[] = [];
+
+    // Update the count display
+    const updateFilteredCount = (count: number, total: number) => {
+      if (selectedTags.length > 0) {
+        filteredCountElement!.textContent = `(${count} of ${total} matching selected tags)`;
+      } else {
+        filteredCountElement!.textContent = "";
+      }
+    };
+
+    // Apply filters to projects
+    const applyFilters = () => {
+      let visibleProjects = 0;
+      const totalProjects = projectItems.length;
+
+      // Show all projects if no tags selected
+      if (selectedTags.length === 0) {
+        projectItems.forEach((item) => {
+          item.classList.remove("hidden");
+          visibleProjects++;
+        });
+        noResultsMessage?.classList.add("hidden");
+      } else {
+        // Filter projects based on selected tags
+        projectItems.forEach((item) => {
+          const projectTags = (item.getAttribute("data-tags") || "").split(",");
+          // Only show projects that have ALL selected tags
+          const shouldShow = selectedTags.every((tag) =>
+            projectTags.includes(tag),
+          );
+
+          if (shouldShow) {
+            item.classList.remove("hidden");
+            visibleProjects++;
+          } else {
+            item.classList.add("hidden");
+          }
+        });
+
+        // Show or hide no results message
+        if (visibleProjects === 0) {
+          noResultsMessage?.classList.remove("hidden");
+        } else {
+          noResultsMessage?.classList.add("hidden");
+        }
+      }
+
+      updateFilteredCount(visibleProjects, totalProjects);
+    };
+
+    // Tag checkbox change handler
+    tagCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", (e) => {
+        const target = e.target as HTMLInputElement;
+        const tag = target.getAttribute("data-tag") as string;
+
+        // Update selected tags based on checkbox state
+        if (target.checked) {
+          if (!selectedTags.includes(tag)) {
+            selectedTags.push(tag);
+          }
+        } else {
+          selectedTags = selectedTags.filter((t) => t !== tag);
+        }
+
+        applyFilters();
+      });
+    });
+
+    // Clear filters button
+    clearFiltersButton?.addEventListener("click", () => {
+      selectedTags = [];
+      tagCheckboxes.forEach((checkbox) => {
+        (checkbox as HTMLInputElement).checked = false;
+      });
+      applyFilters();
+    });
+
+    // Initialize with all projects visible
+    applyFilters();
+  }
+
+  // Initialize on DOMContentLoaded
+  document.addEventListener("DOMContentLoaded", initializeTagFiltering);
+
+  // Support for Astro View Transitions - initialize when navigated to via view transitions
+  document.addEventListener("astro:page-load", initializeTagFiltering);
+</script>

@@ -4,6 +4,11 @@ description: "Portfolio website built with Astro, Tailwind CSS, and TypeScript."
 date: "2025-03-16"
 demoURL: "https://trusmiati.com/"
 # repoURL: "https://github.com/ReinisS/trusmiati"
+tags:
+- Astro
+- TailwindCSS
+- TypeScript
+- Web
 ---
 
 ## Overview

@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { getTagIcon } from "@lib/tagIcons";
 
 type Props = {
   entry: CollectionEntry<"blog"> | CollectionEntry<"projects">;
@@ -21,6 +22,28 @@ const { entry } = Astro.props as {
     <div class="text-sm">
       {entry.data.description}
     </div>
+
+    {
+      entry.data.tags && entry.data.tags.length > 0 && (
+        <div class="mt-2 flex flex-wrap gap-1.5">
+          {entry.data.tags.map((tag) => {
+            const IconComponent = getTagIcon(tag);
+            return (
+              <div class="flex items-center gap-1 rounded-sm bg-black/5 px-1.5 py-0.5 text-xs dark:bg-white/10">
+                {IconComponent && (
+                  <img
+                    src={IconComponent.src}
+                    alt={`${tag} icon`}
+                    class="h-3 w-3"
+                  />
+                )}
+                <span>{tag}</span>
+              </div>
+            );
+          })}
+        </div>
+      )
+    }
   </div>
   <svg
     xmlns="http://www.w3.org/2000/svg"

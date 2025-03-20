@@ -4,6 +4,14 @@ description: "Ever wondered how LLMs understand the meaning behind text? This pr
 date: "2025-03-11"
 demoURL: "https://embeddings.reiniss.com/"
 repoURL: "https://github.com/ReinisS/embedding-visualizer"
+tags:
+- Python
+- Next.js
+- Clerk
+- PostHog
+- NLP
+- Web
+- Full Stack
 ---
 
 ## Overview

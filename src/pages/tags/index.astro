@@ -2,9 +2,18 @@
 import { getCollection } from "astro:content";
 import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
+import { getTagIcon } from "@lib/tagIcons";
 
 const posts = await getCollection("blog", ({ data }) => !data.draft);
-const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort();
+const projects = await getCollection("projects", ({ data }) => !data.draft);
+
+// Combine tags from both blogs and projects
+const tags = [
+  ...new Set([
+    ...posts.flatMap((post) => post.data.tags || []),
+    ...projects.flatMap((project) => project.data.tags || []),
+  ]),
+].sort();
 ---
 
 <Layout title="Tags" description="List of tags used.">
@@ -16,11 +25,27 @@ const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))].sort();
           tags.map((tag) => (
             <a
               href={`/tags/${tag}`}
-              class="rounded-sm border border-black/15 px-2 py-1 text-sm transition-colors duration-300 ease-in-out hover:bg-black/5 hover:text-black focus-visible:bg-black/5 focus-visible:text-black dark:border-white/20 dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
+              class="flex items-center gap-1 rounded-sm border border-black/15 px-2 py-1 text-sm transition-colors duration-300 ease-in-out hover:bg-black/5 hover:text-black focus-visible:bg-black/5 focus-visible:text-black dark:border-white/20 dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
             >
-              {tag}{" "}
-              <span class="text-sm text-gray-600">
-                ({posts.filter((post) => post.data.tags?.includes(tag)).length})
+              {(() => {
+                const IconComponent = getTagIcon(tag);
+                return (
+                  IconComponent && (
+                    <img
+                      src={IconComponent.src}
+                      alt={`${tag} icon`}
+                      class="h-4 w-4"
+                    />
+                  )
+                );
+              })()}
+              <span>{tag}</span>{" "}
+              <span class="text-sm text-gray-600 dark:text-gray-400">
+                (
+                {posts.filter((post) => post.data.tags?.includes(tag)).length +
+                  projects.filter((project) => project.data.tags?.includes(tag))
+                    .length}
+                )
               </span>
             </a>
           ))

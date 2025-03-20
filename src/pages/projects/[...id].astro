@@ -7,6 +7,7 @@ import { readingTime } from "@lib/utils";
 import BackToPrevious from "@components/BackToPrevious.astro";
 import Link from "@components/Link.astro";
 import TableOfContents from "@components/TableOfContents.astro";
+import { getTagIcon } from "@lib/tagIcons";
 
 export async function getStaticPaths() {
   const projects = (await getCollection("projects"))
@@ -43,6 +44,32 @@ const { Content, headings } = await render(project);
       <h1 class="text-3xl font-semibold text-black dark:text-white">
         {project.data.title}
       </h1>
+      {
+        project.data.tags && project.data.tags?.length > 0 ? (
+          <div class="flex gap-2 pt-1">
+            {project.data.tags.map((tag) => (
+              <a
+                href={`/tags/${tag}`}
+                class="flex items-center gap-1 rounded-sm border border-black/15 px-2 py-1 text-sm transition-colors duration-300 ease-in-out hover:bg-black/5 hover:text-black focus-visible:bg-black/5 focus-visible:text-black dark:border-white/20 dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
+              >
+                {(() => {
+                  const IconComponent = getTagIcon(tag);
+                  return (
+                    IconComponent && (
+                      <img
+                        src={IconComponent.src}
+                        alt={`${tag} icon`}
+                        class="h-4 w-4"
+                      />
+                    )
+                  );
+                })()}
+                {tag}
+              </a>
+            ))}
+          </div>
+        ) : null
+      }
       {
         (project.data.demoURL || project.data.repoURL) && (
           <nav class="flex gap-1">

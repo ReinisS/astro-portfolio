@@ -3,6 +3,10 @@ title: "Operator Finder"
 description: "Finds all possible correct operators to use to solve a given equation."
 date: "2020-09-28"
 repoURL: "https://github.com/ReinisS/OperatorFinder"
+tags:
+- C#
+- .NET Core
+- Console
 ---
 
 ## Overview

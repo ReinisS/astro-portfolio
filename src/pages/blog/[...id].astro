@@ -8,6 +8,7 @@ import BackToPrevious from "@components/BackToPrevious.astro";
 import PostNavigation from "@components/PostNavigation.astro";
 import TableOfContents from "@components/TableOfContents.astro";
 import Giscus from "@components/Giscus.astro";
+import { getTagIcon } from "@lib/tagIcons";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog"))
@@ -62,11 +63,11 @@ const { Content, headings } = await render(post);
           <FormattedDate date={post.data.date} />
         </div>
         &bull;
-        {post.body && (
-          <div class="font-base text-sm">
-            {readingTime(post.body)}
-          </div>
-        )}        
+        {
+          post.body && (
+            <div class="font-base text-sm">{readingTime(post.body)}</div>
+          )
+        }
       </div>
       <h1 class="animate text-3xl font-semibold text-black dark:text-white">
         {post.data.title}
@@ -77,8 +78,20 @@ const { Content, headings } = await render(post);
             {post.data.tags.map((tag) => (
               <a
                 href={`/tags/${tag}`}
-                class="rounded-sm border border-black/15 px-2 py-1 text-sm transition-colors duration-300 ease-in-out hover:bg-black/5 hover:text-black focus-visible:bg-black/5 focus-visible:text-black dark:border-white/20 dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
+                class="flex items-center gap-1 rounded-sm border border-black/15 px-2 py-1 text-sm transition-colors duration-300 ease-in-out hover:bg-black/5 hover:text-black focus-visible:bg-black/5 focus-visible:text-black dark:border-white/20 dark:hover:bg-white/5 dark:hover:text-white dark:focus-visible:bg-white/5 dark:focus-visible:text-white"
               >
+                {(() => {
+                  const IconComponent = getTagIcon(tag);
+                  return (
+                    IconComponent && (
+                      <img
+                        src={IconComponent.src}
+                        alt={`${tag} icon`}
+                        class="h-4 w-4"
+                      />
+                    )
+                  );
+                })()}
                 {tag}
               </a>
             ))}

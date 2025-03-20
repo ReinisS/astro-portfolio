@@ -4,41 +4,100 @@ import Layout from "@layouts/Layout.astro";
 import Container from "@components/Container.astro";
 import ArrowCard from "@components/ArrowCard.astro";
 import BackToPrevious from "@components/BackToPrevious.astro";
+import { getTagIcon } from "@lib/tagIcons";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
 
-  // Get unique tags
-  const tags = [...new Set(posts.flatMap((post) => post.data.tags || []))];
+  // Get unique tags from both posts and projects
+  const tags = [
+    ...new Set([
+      ...posts.flatMap((post) => post.data.tags || []),
+      ...projects.flatMap((project) => project.data.tags || []),
+    ]),
+  ];
 
   // Create paths for each tag
   return tags.map((tag) => ({
     params: { id: tag },
     props: {
       posts: posts.filter((post) => post.data.tags?.includes(tag)),
+      projects: projects.filter((project) => project.data.tags?.includes(tag)),
     },
   }));
 }
 
 const { id } = Astro.params;
-const { posts } = Astro.props;
+const { posts, projects } = Astro.props;
 
 // Sort posts by date, most recent first
 const sortedPosts = posts.sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
 );
+
+// Sort projects by date, most recent first
+const sortedProjects = projects.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+);
 ---
 
-<Layout title={`Tag: ${id}`} description={`Posts with the tag: ${id}`}>
+<Layout title={`Tag: ${id}`} description={`Content with the tag: ${id}`}>
   <Container>
     <div class="space-y-10" data-pagefind-ignore>
       <BackToPrevious href="/tags"> All tags </BackToPrevious>
-      <h1 class="animate font-semibold text-black dark:text-white">
-        Posts tagged with "{id}"
+      <h1
+        class="animate flex items-center gap-2 font-semibold text-black dark:text-white"
+      >
+        Content tagged with "
+        <span class="flex items-center gap-1">
+          {
+            (() => {
+              const IconComponent = getTagIcon(id);
+              return (
+                IconComponent && (
+                  <img
+                    src={IconComponent.src}
+                    alt={`${id} icon`}
+                    class="h-5 w-5"
+                  />
+                )
+              );
+            })()
+          }
+          {id}"
+        </span>
       </h1>
-      <ul class="animate flex flex-col gap-4">
-        {sortedPosts.map((post) => <ArrowCard entry={post} />)}
-      </ul>
+
+      {
+        sortedPosts.length > 0 && (
+          <div class="space-y-4">
+            <h2 class="animate text-xl font-medium text-black dark:text-white">
+              Blog Posts
+            </h2>
+            <ul class="animate flex flex-col gap-4">
+              {sortedPosts.map((post) => (
+                <ArrowCard entry={post} />
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      {
+        sortedProjects.length > 0 && (
+          <div class="space-y-4">
+            <h2 class="animate text-xl font-medium text-black dark:text-white">
+              Projects
+            </h2>
+            <ul class="animate flex flex-col gap-4">
+              {sortedProjects.map((project) => (
+                <ArrowCard entry={project} />
+              ))}
+            </ul>
+          </div>
+        )
+      }
     </div>
   </Container>
 </Layout>
